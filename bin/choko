@@ -5,42 +5,41 @@ var fs = require('fs');
 var path = require('path');
 var util = require('util');
 var program = require('commander');
-var Server = require('../lib/server');
 var mkdirp = require('mkdirp');
 var lodash = require('lodash');
+var Application = require('../lib/application');
 
-var APPS_PATH_DEFAULT = 'applications';
+var APP_PATH_DEFAULT = '.';
 
 /**
- * Returns the normalized path where all the apps reside.
+ * Returns the normalized path where the app reside.
  */
-var appsPath = function (destination) {
+var appPath = function (destination) {
   // Default destination.
   if (!lodash.isString(destination)) {
-    destination = APPS_PATH_DEFAULT;
+    destination = APP_PATH_DEFAULT;
   }
   return path.normalize(destination);
 }
 
 /**
- * Append in a path the applications.json file.
+ * Append in a path the settings.json file.
  */
-var appsSettingsPath = function (dir) {
-  return path.join(dir, 'applications.json');
+var appSettingsPath = function (dir) {
+  return path.join(dir, 'settings.json');
 }
 
 /**
  * Starts the applications in the specified destination path.
  */
 var start = function(destination, prg, callback) {
-  var dir = appsPath(destination);
+  var dir = appPath(destination);
 
   if (!isInstalled(dir)) {
     return install(dir, prg);
   }
 
-  var server = new Server(dir);
-  server.start(prg.port, function () {
+  Application.bootstrap(dir, prg.port, function () {
     if (lodash.isFunction(callback)) {
       callback(dir);
     }
@@ -52,19 +51,19 @@ var start = function(destination, prg, callback) {
  */
 var isInstalled = function(dir) {
   // Running from the "applications" directory.
-  if (dir == null && fs.existsSync(appsSettingsPath(appsPath()))) {
+  if (dir == null && fs.existsSync(appSettingsPath(appPath()))) {
     return true;
   }
 
   // Specified directory.
-  return fs.existsSync(appsSettingsPath(dir));
+  return fs.existsSync(appSettingsPath(dir));
 }
 
 /**
  * Prepare a structure of directories and files, to run the installer.
  */
 var install = function(destination, prg, callback) {
-  var dir = appsPath(destination);
+  var dir = appPath(destination);
 
   if (isInstalled(dir)) {
     return process.stdin.destroy();
@@ -93,7 +92,7 @@ var install = function(destination, prg, callback) {
       var initialApps = {};
       initialApps[domain] = domain;
 
-      fs.writeFileSync(appsSettingsPath(dir), JSON.stringify(initialApps, null, '  '), {flag: 'w'});
+      fs.writeFileSync(appSettingsPath(dir), JSON.stringify(initialApps, null, '  '), {flag: 'w'});
 
       var appDir = path.join(dir, domain);
       fs.mkdirSync(appDir);
