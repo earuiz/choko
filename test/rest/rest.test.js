@@ -8,7 +8,7 @@ var testingUrl = 'http://localhost:3200';
 describe('REST extension', function(done) {
 
   it('should create an item via POST', function(done) {
-    var application = this.getServer().getApplication('localhost');
+    var application = this.getApp();
     userHelper.createUser(application, ['test-role'], function(error, user, credentials) {
       request(testingUrl)
         .post('/rest/testType')
@@ -22,7 +22,7 @@ describe('REST extension', function(done) {
   });
 
   it('should update an item via POST', function(done) {
-    var application = this.getServer().getApplication('localhost');
+    var application = this.getApp();
     userHelper.createUser(application, ['test-type-manager'], function(error, user, credentials) {
       // Create item.
       request(testingUrl)
@@ -52,7 +52,7 @@ describe('REST extension', function(done) {
   });
 
   it('shouldn\'t update an item via POST on main endpoint', function(done) {
-    var application = this.getServer().getApplication('localhost');
+    var application = this.getApp();
     userHelper.createUser(application, ['test-type-manager'], function(error, user, credentials) {
       // Create item.
       request(testingUrl)
@@ -93,7 +93,7 @@ describe('REST extension', function(done) {
   });
 
   it('shouldn\'t create an item with fields not in type schema', function(done) {
-    var application = this.getServer().getApplication('localhost');
+    var application = this.getApp();
     userHelper.createUser(application, ['test-role'], function(error, user, credentials) {
       request(testingUrl)
         .post('/rest/testType')
@@ -111,7 +111,7 @@ describe('REST extension', function(done) {
   });
 
   it('should authenticate on REST with Basic authentication', function(done) {
-    var application = this.getServer().getApplication('localhost');
+    var application = this.getApp();
     var User = application.type('user');
 
     var userData = userHelper.sample();
@@ -130,7 +130,7 @@ describe('REST extension', function(done) {
   });
 
   it('should not be able to run denied REST requests', function(done) {
-    var application = this.getServer().getApplication('localhost');
+    var application = this.getApp();
     var User = application.type('user');
 
     var userData = userHelper.sample();

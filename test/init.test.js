@@ -1,22 +1,21 @@
-var Server = require('../lib/server');
-var express = require('express');
+var Application = require('../lib/application');
 var async = require('async');
 var path = require('path');
-var server;
+var app;
 
 before(function(done) {
-  server = new Server(path.normalize(__dirname + '/applications'));
-  this.getServer = function() {
-    return server;
-  };
-
-  server.start(3200, function () {
+  Application.bootstrap(path.join(__dirname, '/applications/test-app'), 3200, function (testApp) {
+    app = testApp;
     done();
   });
+
+  this.getApp = function() {
+    return app;
+  };
 });
 
 beforeEach(function(done) {
-  var app = this.getServer().getApplication('localhost');
+  var app = this.getApp();
 
   var droppers = Object.keys(app.collections).map(function (collection) {
     return function (next) {
@@ -27,8 +26,4 @@ beforeEach(function(done) {
   async.parallel(droppers, function () {
     done();
   });
-});
-
-after(function(done) {
-  server.stop(done);
 });
